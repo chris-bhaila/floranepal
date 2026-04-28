@@ -19,48 +19,61 @@ class GoogleController extends Controller
     //Handling google callback
     public function callback()
     {
+        // Step 1: Get Google user
         try {
             $googleUser = Socialite::driver('google')->stateless()->user();
         } catch (\Exception $e) {
+            \Log::error('Google OAuth failed: ' . $e->getMessage());
             return response()->json(['error' => 'Google authentication failed'], 401);
         }
-        $user = User::where('google_id', $googleUser->getId())->first();
 
-        if (!$user) {
+        // Step 2: Upsert user by email (stable identifier)
+        try {
             $user = User::updateOrCreate(
-                ['google_id' => $googleUser->getId()],
+                ['email' => $googleUser->getEmail()],
                 [
-                    'name'     => $googleUser->getName(),
-                    'email'    => $googleUser->getEmail(),
-                    'avatar'   => $googleUser->getAvatar(),
-                    'password' => bcrypt(Str::random(32)),
+                    'google_id' => $googleUser->getId(),
+                    'name'      => $googleUser->getName(),
+                    'avatar'    => $googleUser->getAvatar(),
+                    'password'  => bcrypt(Str::random(32)),
                 ]
             );
+        } catch (\Exception $e) {
+            \Log::error('User upsert failed during Google callback: ' . $e->getMessage());
+            return response()->json(['error' => 'Could not authenticate user'], 500);
         }
 
-        Auth::login($user);
+        if (!$user) {
+            \Log::error('updateOrCreate returned null for email: ' . $googleUser->getEmail());
+            return response()->json(['error' => 'User creation failed'], 500);
+        }
 
-        // Issue Sanctum token
+        // Step 3: Login and issue Sanctum token
+        Auth::login($user);
         $token = $user->createToken('nmc-token')->plainTextToken;
 
-        // Detect if request is coming from the mobile app
+        // Step 4: Detect mobile source
         $isMobile = request()->query('source') === 'mobile';
 
         if ($isMobile) {
             return redirect('myapp://auth/google/callback?token=' . urlencode($token));
         }
 
-        // Normal web flow
+        // Step 5: Web flow — admin check
         if ($user->subscription_type === 'admin') {
-            return redirect()->route('admin.dashboard')->cookie('auth_token', $token, 60 * 24);
+            return redirect()->route('admin.dashboard')
+                ->cookie('auth_token', $token, 60 * 24);
         }
 
+        // Step 6: Email verification check
         if (!$user->hasVerifiedEmail()) {
             $user->sendEmailVerificationNotification();
-            return redirect()->route('verification.notice')->cookie('auth_token', $token, 60 * 24);
+            return redirect()->route('verification.notice')
+                ->cookie('auth_token', $token, 60 * 24);
         }
 
-        return redirect('/dashboard')->cookie('auth_token', $token, 60 * 24);
+        return redirect('/dashboard')
+            ->cookie('auth_token', $token, 60 * 24);
     }
 
     public function logout(Request $request)

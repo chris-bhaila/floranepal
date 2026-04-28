@@ -14,13 +14,13 @@
             <p class="text-gray-500 text-sm mb-6">
                 We sent a verification link to
                 <span class="font-medium text-gray-700">{{ auth()->user()->email }}</span>.
-                Click it to activate your BloomChain account.
+                Click it to activate your FloraNepal account.
             </p>
 
             @if (session('status') === 'verification-link-sent')
-                <div class="bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg px-4 py-3 mb-5">
-                    A new verification link has been sent to your email.
-                </div>
+            <div class="bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg px-4 py-3 mb-5">
+                A new verification link has been sent to your email.
+            </div>
             @endif
 
             <form method="POST" action="{{ route('verification.send') }}">
@@ -41,14 +41,22 @@
         </div>
     </div>
     <script>
-        setInterval(() => {
-            fetch('/email/verified-check')
-                .then(res => res.json())
-                .then(data => {
-                    if (data.verified) {
-                        window.location.href = '/dashboard';
+        const interval = setInterval(async () => {
+            try {
+                const res = await fetch('/auth/check-verification', {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
                     }
                 });
-        }, 5000);
+                const data = await res.json();
+
+                if (data.verified) {
+                    clearInterval(interval);
+                    window.location.href = '/dashboard';
+                }
+            } catch (e) {
+                // silently ignore
+            }
+        }, 3000);
     </script>
 </x-app-layout>

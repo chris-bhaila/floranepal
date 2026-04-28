@@ -48,16 +48,31 @@ Route::get('/email/verify', function () {
     return view('pages.dashboard.settings.verification');
 })->name('verification.notice');
 
-Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-    $request->fulfill();
-    $request->user()->update(['verification_status' => 'verified']);
-    return redirect('/dashboard');
+Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) {
+    $user = \App\Models\User::findOrFail($id);
+    
+    if (!hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+        abort(403);
+    }
+    
+    if (!$user->hasVerifiedEmail()) {
+        $user->markEmailAsVerified();
+        $user->update(['verification_status' => 'verified']);
+    }
+    
+    return response()->view('pages.verified');
 })->middleware('signed')->name('verification.verify');
 
 Route::post('/email/verification-notification', function (Request $request) {
     $request->user()->sendEmailVerificationNotification();
     return back()->with('status', 'verification-link-sent');
-})->middleware('throttle:6,1')->name('verification.send');
+})->middleware(['auth:sanctum,web', 'throttle:6,1'])->name('verification.send');
+
+Route::get('/auth/check-verification', function (Request $request) {
+    return response()->json([
+        'verified' => $request->user() && $request->user()->hasVerifiedEmail()
+    ]);
+})->middleware('auth:sanctum,web');
 
 // Protected Routes for user
 Route::middleware(['auth:sanctum', 'prevent.back'])->group(function () {

@@ -10,6 +10,9 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Laravel\Sanctum\HasApiTokens;
+use App\Mail\VerifyEmail as VerifyEmailMailable;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -63,6 +66,17 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Transaction::class);
     }
+
+    public function sendEmailVerificationNotification(): void
+    {
+        $url = URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addMinutes(60),
+            ['id' => $this->id, 'hash' => sha1($this->email)]
+        );
+
+        Mail::to($this->email)->send(new VerifyEmailMailable($this, $url));
+    }
     public function getLoginSessions()
     {
         return DB::table('sessions')
@@ -78,7 +92,7 @@ class User extends Authenticatable implements MustVerifyEmail
                 ];
             });
     }
-    
+
     public function getAvatarUrlAttribute(): string
     {
         if (!$this->avatar) return '';

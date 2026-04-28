@@ -65,6 +65,7 @@ class NurseryController extends Controller
 
         Nursery::create([
             'user_id'       => Auth::id(),
+            'google_id'     => Auth::user()->google_id,
             'name'          => $request->name,
             'contact_phone' => $request->phone,
             'contact_email' => $request->email,

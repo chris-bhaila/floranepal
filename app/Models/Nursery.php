@@ -19,6 +19,7 @@ class Nursery extends Model
         'contact_email',
         'reg_cer',
         'pan_cer',
+        'google_id',
         'is_active',
     ];
 
