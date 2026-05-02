@@ -13,7 +13,9 @@
             <h1 class="text-2xl font-bold text-gray-800 mb-2">Verify your email</h1>
             <p class="text-gray-500 text-sm mb-6">
                 We sent a verification link to
-                <span class="font-medium text-gray-700">{{ auth()->user()->email }}</span>.
+                <span class="font-medium text-gray-700">
+                    {{ Auth::check() ? Auth::user()->email : 'not authenticated' }}
+                </span>
                 Click it to activate your FloraNepal account.
             </p>
 

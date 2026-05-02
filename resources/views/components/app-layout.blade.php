@@ -89,6 +89,61 @@
         }
     </style>
 </head>
+<!-- <script>
+    // document.addEventListener('DOMContentLoaded', function() {
+    //     const token = localStorage.getItem('auth_token');
+    //     if (token) {
+    //         fetch('/auth/mobile/login', {
+    //                 method: 'POST',
+    //                 headers: {
+    //                     'Content-Type': 'application/json',
+    //                     'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+    //                 },
+    //                 body: JSON.stringify({
+    //                     token: token
+    //                 })
+    //             }).then(response => response.json())
+    //             .then(data => {
+    //                 if (data.success) {
+    //                     localStorage.removeItem('auth_token');
+    //                     window.location.reload();
+    //                 }
+    //             });
+    //     }
+    // });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const token = localStorage.getItem('auth_token');
+        console.log('auth_token found:', token ? 'yes' : 'no');
+        if (token) {
+            const csrfMeta = document.querySelector('meta[name=csrf-token]');
+            console.log('csrf meta found:', csrfMeta ? 'yes' : 'no');
+
+            fetch('/auth/mobile/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfMeta ? csrfMeta.content : ''
+                    },
+                    body: JSON.stringify({
+                        token: token
+                    })
+                })
+                .then(r => {
+                    console.log('Response status:', r.status);
+                    return r.json();
+                })
+                .then(data => {
+                    console.log('Response data:', JSON.stringify(data));
+                    if (data.success) {
+                        localStorage.removeItem('auth_token');
+                        window.location.reload();
+                    }
+                })
+                .catch(err => console.log('Fetch error:', err.message));
+        }
+    });
+</script> -->
 
 <body class="font-sans h-screen">
 
@@ -97,6 +152,34 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('auth_token');
+            console.log('auth_token found:', token ? 'yes' : 'no');
+
+            if (!token) return;
+
+            const csrfMeta = document.querySelector('meta[name=csrf-token]');
+
+            fetch('/auth/mobile/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfMeta ? csrfMeta.content : ''
+                    },
+                    body: JSON.stringify({
+                        token: token
+                    })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    console.log('Response data:', JSON.stringify(data));
+                    if (data.success) {
+                        localStorage.removeItem('auth_token');
+                        window.location.href = '/dashboard';
+                    }
+                })
+                .catch(err => console.log('Fetch error:', err.message));
+        });
         toastr.options = {
             "positionClass": "toast-top-right",
             "timeOut": "3000",
@@ -104,20 +187,20 @@
             "closeButton": true,
         };
 
-        @if (session('success'))
-            toastr.success("{{ session('success') }}");
+        @if(session('success'))
+        toastr.success("{{ session('success') }}");
         @endif
 
-        @if (session('error'))
-            toastr.error("{{ session('error') }}");
+        @if(session('error'))
+        toastr.error("{{ session('error') }}");
         @endif
 
-        @if (session('warning'))
-            toastr.warning("{{ session('warning') }}");
+        @if(session('warning'))
+        toastr.warning("{{ session('warning') }}");
         @endif
 
-        @if (session('info'))
-            toastr.info("{{ session('info') }}");
+        @if(session('info'))
+        toastr.info("{{ session('info') }}");
         @endif
     </script>
 </body>

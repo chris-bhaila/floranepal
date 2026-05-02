@@ -10,24 +10,37 @@ use Laravel\Socialite\Facades\Socialite;
 
 class GoogleController extends Controller
 {
-    //Redirecting user to google
     public function redirectToGoogle()
     {
-        return Socialite::driver('google')->redirect();
+        return Socialite::driver('google')
+            ->with(['state' => 'mobile'])
+            ->stateless()
+            ->redirect();
     }
 
-    //Handling google callback
-    public function callback()
+    public function callback(Request $request)
     {
-        // Step 1: Get Google user
+        $isMobile = true; // Hardcoded as per team decision
+
         try {
             $googleUser = Socialite::driver('google')->stateless()->user();
         } catch (\Exception $e) {
             \Log::error('Google OAuth failed: ' . $e->getMessage());
-            return response()->json(['error' => 'Google authentication failed'], 401);
+            return redirect('floranepal://auth?error=google_failed');
         }
 
-        // Step 2: Upsert user by email (stable identifier)
+        \Log::info('Google user retrieved', [
+            'email'     => $googleUser->getEmail(),
+            'google_id' => $googleUser->getId(),
+            'name'      => $googleUser->getName(),
+            'is_mobile' => $isMobile,
+        ]);
+
+        if (!$googleUser->getEmail()) {
+            \Log::error('No email from Google');
+            return redirect('floranepal://auth?error=no_email');
+        }
+
         try {
             $user = User::updateOrCreate(
                 ['email' => $googleUser->getEmail()],
@@ -36,49 +49,24 @@ class GoogleController extends Controller
                     'name'      => $googleUser->getName(),
                     'avatar'    => $googleUser->getAvatar(),
                     'password'  => bcrypt(Str::random(32)),
+                    'email_verified_at' => now(),
                 ]
             );
+            \Log::info('User upserted', ['user_id' => $user->id]);
         } catch (\Exception $e) {
-            \Log::error('User upsert failed during Google callback: ' . $e->getMessage());
-            return response()->json(['error' => 'Could not authenticate user'], 500);
+            \Log::error('User upsert failed: ' . $e->getMessage());
+            return redirect('floranepal://auth?error=server_error');
         }
 
-        if (!$user) {
-            \Log::error('updateOrCreate returned null for email: ' . $googleUser->getEmail());
-            return response()->json(['error' => 'User creation failed'], 500);
-        }
+        $token = $user->createToken('android-app')->plainTextToken;
+        \Log::info('Token created', ['user_id' => $user->id, 'is_mobile' => $isMobile]);
 
-        // Step 3: Login and issue Sanctum token
-        Auth::login($user);
-        $token = $user->createToken('nmc-token')->plainTextToken;
-
-        // Step 4: Detect mobile source
-        $isMobile = request()->query('source') === 'mobile';
-
-        if ($isMobile) {
-            return redirect('myapp://auth/google/callback?token=' . urlencode($token));
-        }
-
-        // Step 5: Web flow — admin check
-        if ($user->subscription_type === 'admin') {
-            return redirect()->route('admin.dashboard')
-                ->cookie('auth_token', $token, 60 * 24);
-        }
-
-        // Step 6: Email verification check
-        if (!$user->hasVerifiedEmail()) {
-            $user->sendEmailVerificationNotification();
-            return redirect()->route('verification.notice')
-                ->cookie('auth_token', $token, 60 * 24);
-        }
-
-        return redirect('/dashboard')
-            ->cookie('auth_token', $token, 60 * 24);
+        return redirect('floranepal://auth?token=' . urlencode($token));
     }
 
     public function logout(Request $request)
     {
-        $request->user()->tokens()->delete(); // revoke all tokens for this user
+        $request->user()->tokens()->delete();
         Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
