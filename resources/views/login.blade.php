@@ -11,7 +11,7 @@
             {{-- Top bar --}}
             <div class="absolute top-0 left-0 right-0 z-10 flex items-center px-4 md:px-8 py-3 justify-between">
                 <img src="{{ asset('images/FNLTransparent.png') }}" alt="Logo" class="h-12 md:h-16 w-auto object-contain">
-                <a href="{{ route('google.redirect') }}"
+                <a href="{{ route('google.redirect', ['client' => 'web']) }}"
                     class="flex items-center justify-center gap-3 px-4 py-2 bg-white border-[1.5px] border-green-100 text-green-900 rounded-full shadow-sm hover:border-green-400 hover:shadow-green-400/20 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
                     <svg class="w-5 h-5 shrink-0" viewBox="0 0 533.5 544.3" xmlns="http://www.w3.org/2000/svg">
                         <path fill="#4285F4" d="M533.5 278.4c0-17.4-1.6-34-4.8-50H272v95.2h146.9c-6.3 34-25 62.9-53.1 82l85.7 66.6c50-46.1 78-114 78-193.8z"/>

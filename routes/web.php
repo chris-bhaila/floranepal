@@ -73,17 +73,18 @@ Route::get('/auth/check-verification', function (Request $request) {
     ]);
 })->middleware('auth:sanctum,web');
 
-// Route::post('/auth/mobile/login', function (Request $request) {
-//     $accessToken = \Laravel\Sanctum\PersonalAccessToken::findToken($request->token);
+Route::post('/auth/mobile/login', function (Request $request) {
+    $accessToken = \Laravel\Sanctum\PersonalAccessToken::findToken($request->token);
 
-//     if ($accessToken) {
-//         $user = $accessToken->tokenable;
-//         Auth::login($user);
-//         return response()->json(['success' => true]);
-//     }
+    if ($accessToken) {
+        $user = $accessToken->tokenable;
+        Auth::login($user);
+        $request->session()->regenerate();
+        return response()->json(['success' => true]);
+    }
 
-//     return response()->json(['error' => 'Invalid token'], 401);
-// });
+    return response()->json(['error' => 'Invalid token'], 401);
+})->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
 
 // Protected Routes for user
 Route::middleware(['auth:sanctum', 'prevent.back'])->group(function () {
