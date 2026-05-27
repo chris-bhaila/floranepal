@@ -142,7 +142,7 @@
                                 style="gap: 1px; background: rgba(74,222,128,0.06);">
 
                                 @foreach ($nursery->plants as $plant)
-                                    <div class="plant-card-{{ $nursery->id }} flex flex-col p-3 transition-colors duration-200 {{ $loop->iteration > 6 ? 'hidden' : '' }}"
+                                    <div class="plant-card-{{ $nursery->id }} flex flex-col p-3 transition-colors duration-200 {{ $loop->iteration > 4 ? 'hidden' : '' }}"
                                         style="background: #071a0e;"
                                         onmouseover="this.style.background='rgba(74,222,128,0.04)'"
                                         onmouseout="this.style.background='#071a0e'">
@@ -205,16 +205,16 @@
                                 @endforeach
                             </div>
 
-                            @if ($nursery->plants->count() > 6)
-                                <div class="show-more-container-{{ $nursery->id }} p-4 flex justify-center"
+                            @if ($nursery->plants->count() > 4)
+                                <div class="p-4 flex justify-center"
                                     style="background: rgba(74,222,128,0.03); border-top: 1px solid rgba(74,222,128,0.08);">
-                                    <button onclick="showMorePlants('{{ $nursery->id }}', this)"
+                                    <a href="{{ route('nursery.public', $nursery) }}"
                                         class="text-xs font-semibold tracking-widest uppercase px-6 py-2.5 rounded-full transition-all duration-200"
                                         style="color: rgba(134,239,172,0.65); background: rgba(74,222,128,0.07); border: 1px solid rgba(74,222,128,0.15);"
                                         onmouseover="this.style.background='rgba(74,222,128,0.12)'; this.style.color='rgba(134,239,172,0.9)';"
                                         onmouseout="this.style.background='rgba(74,222,128,0.07)'; this.style.color='rgba(134,239,172,0.65)';">
                                         Show More
-                                    </button>
+                                    </a>
                                 </div>
                             @endif
                         </div>
@@ -364,14 +364,6 @@
             chevron.style.transform = content.classList.contains('hidden') ? 'rotate(-90deg)' : 'rotate(0deg)';
         }
 
-        function showMorePlants(nurseryId, btnEl) {
-            const hidden = document.querySelectorAll(`.plant-card-${nurseryId}.hidden`);
-            const toShow = Math.min(10, hidden.length);
-            for (let i = 0; i < toShow; i++) hidden[i].classList.remove('hidden');
-            if (!document.querySelectorAll(`.plant-card-${nurseryId}.hidden`).length) {
-                btnEl.closest(`.show-more-container-${nurseryId}`).style.display = 'none';
-            }
-        }
     </script>
 
 </x-app-layout>

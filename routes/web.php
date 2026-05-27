@@ -31,6 +31,10 @@ Route::get('/', function () {
     return view('login', compact('nurseries'));
 })->name('login');
 
+Route::get('/nurseries/{nursery}', function (Nursery $nursery) {
+    return view('nursery-plants', ['nursery' => $nursery->load('plants')]);
+})->name('nursery.public');
+
 Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.redirect');
 Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('google.callback');
 

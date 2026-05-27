@@ -92,8 +92,11 @@ class GoogleController extends Controller
         // Web session login — no token involved
         Auth::login($user);
         $request->session()->regenerate();
-        \Log::info('Web login', ['user_id' => $user->id]);
-        return redirect('/dashboard');
+        \Log::info('Web login', ['user_id' => $user->id, 'role' => $user->subscription_type]);
+
+        return $user->subscription_type === 'admin'
+            ? redirect()->route('admin.dashboard')
+            : redirect('/dashboard');
     }
 
     public function logout(Request $request)
