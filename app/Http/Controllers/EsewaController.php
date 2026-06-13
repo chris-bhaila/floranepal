@@ -10,13 +10,13 @@ class EsewaController extends Controller
 {
     public function initiate(Request $request)
     {
-        $plan = $request->plan ?? 'annually';
-
         $plans = [
             'monthly'         => ['label' => 'Monthly',       'amount' => 999],
             'semi-annually'   => ['label' => 'Semi-Annually',  'amount' => 5094],
             'annually'        => ['label' => 'Annually',       'amount' => 7188],
         ];
+
+        $plan = array_key_exists($request->plan, $plans) ? $request->plan : 'annually';
 
         $selected = $plans[$plan];
         $transactionId = 'TXN_' . Auth::id() . '_' . time();
@@ -37,8 +37,15 @@ class EsewaController extends Controller
 
     public function verify(Request $request)
     {
-        $data = base64_decode($request->data);
-        $data = json_decode($data, true);
+        $raw = base64_decode($request->data ?? '', true);
+        if ($raw === false) {
+            return redirect()->route('subscription')->with('error', 'Invalid payment response.');
+        }
+
+        $data = json_decode($raw, true);
+        if (!is_array($data)) {
+            return redirect()->route('subscription')->with('error', 'Invalid payment response.');
+        }
 
         if ($data['status'] !== 'COMPLETE') {
             return redirect()->route('subscription')->with('error', 'Payment failed or cancelled.');

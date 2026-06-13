@@ -52,7 +52,7 @@ class ProfileController extends Controller
 
     public function addInfo()
     {
-        if (!empty($user->phone) && !empty($user->address)) {
+        if (!empty(Auth::user()->phone) && !empty(Auth::user()->address)) {
             return redirect()->route('dashboard');
         }
 
@@ -68,7 +68,7 @@ class ProfileController extends Controller
 
     public function storeAdditionalInfo(Request $request)
     {
-        if (!empty($user->phone) && !empty($user->address)) {
+        if (!empty(Auth::user()->phone) && !empty(Auth::user()->address)) {
             return redirect()->route('dashboard');
         }
 
