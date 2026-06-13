@@ -39,6 +39,10 @@ Route::get('/plants/{plant}', function (App\Models\Plant $plant) {
     return view('plant-detail', ['plant' => $plant->load('nursery')]);
 })->name('plant.public');
 
+Route::get('/privacy-policy', function () {
+    return view('privacy-policy');
+})->name('privacy-policy');
+
 Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.redirect');
 Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('google.callback');
 

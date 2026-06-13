@@ -149,6 +149,14 @@
 
     {{ $slot }}
 
+    <footer class="w-full py-4 text-center" style="background: transparent;">
+        <a href="{{ route('privacy-policy') }}"
+           class="text-xs"
+           style="color: rgba(134,239,172,0.35);">
+            Privacy Policy
+        </a>
+    </footer>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script>

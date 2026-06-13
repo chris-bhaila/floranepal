@@ -224,6 +224,17 @@
             @endforeach
         </div>
 
+        {{-- Footer --}}
+        <div class="px-4 py-5 text-center" style="border-top: 1px solid rgba(74,222,128,0.08);">
+            <a href="{{ route('privacy-policy') }}"
+               class="text-xs transition-colors duration-200"
+               style="color: rgba(134,239,172,0.4);"
+               onmouseover="this.style.color='rgba(134,239,172,0.7)'"
+               onmouseout="this.style.color='rgba(134,239,172,0.4)'">
+                Privacy Policy
+            </a>
+        </div>
+
     </div>
 
     <script>
