@@ -67,6 +67,14 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Transaction::class);
     }
 
+    public function hasVerifiedEmail(): bool
+    {
+        if ($this->subscription_type === 'admin') {
+            return true;
+        }
+        return parent::hasVerifiedEmail();
+    }
+
     public function sendEmailVerificationNotification(): void
     {
         $url = URL::temporarySignedRoute(
