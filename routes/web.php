@@ -173,9 +173,9 @@ Route::middleware(['auth:sanctum', 'web.verified', 'prevent.back'])->group(funct
     Route::get('/dashboard/{page?}', function ($page = 'dashboard') {
         return dashboardView($page);
     })->name('dashboard');
-
-    Route::post('/logout', [GoogleController::class, 'logout'])->name('logout');
 });
+
+Route::post('/logout', [GoogleController::class, 'logout'])->middleware('auth:sanctum')->name('logout');
 
 // Protected routes for admin
 Route::middleware(['auth:sanctum', 'admin', 'prevent.back'])->prefix('admin')->name('admin.')->group(function () {
