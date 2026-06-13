@@ -90,7 +90,7 @@ class AdminController extends Controller
                 }
             }
             $file = $request->file('avatar');
-            $avatarName = $user->id . '_avatar.' . $file->getClientOriginalExtension();
+            $avatarName = $user->id . '_avatar.' . $file->guessExtension();
             $file->storeAs($user->id, $avatarName, 'local');
             $data['avatar'] = $avatarName; // 👈 just the filename
         }
@@ -158,7 +158,7 @@ class AdminController extends Controller
                 }
             }
             $file = $request->file('reg_cer');
-            $filename = $userId . '_reg_cer.' . $file->getClientOriginalExtension();
+            $filename = $userId . '_reg_cer.' . $file->guessExtension();
             $file->storeAs($userId, $filename, 'local');
             $data['reg_cer'] = $filename;
         }
@@ -173,7 +173,7 @@ class AdminController extends Controller
                 }
             }
             $file = $request->file('pan_cer');
-            $filename = $userId . '_pan_cer.' . $file->getClientOriginalExtension();
+            $filename = $userId . '_pan_cer.' . $file->guessExtension();
             $file->storeAs($userId, $filename, 'local');
             $data['pan_cer'] = $filename;
         }
@@ -236,7 +236,7 @@ class AdminController extends Controller
                 Storage::disk('public')->delete('plants/' . $plant->image);
             }
             $file = $request->file('plant_image');
-            $plantImgName = time() . '_plant.' . $file->getClientOriginalExtension();
+            $plantImgName = time() . '_plant.' . $file->guessExtension();
             $file->storeAs('plants', $plantImgName, 'public');
             $data['image'] = $plantImgName;
         }

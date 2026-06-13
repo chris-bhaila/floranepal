@@ -35,7 +35,7 @@ class ProfileController extends Controller
             }
 
             $file = $request->file('avatar');
-            $avatarName = $user->id . '_avatar.' . $file->getClientOriginalExtension();
+            $avatarName = $user->id . '_avatar.' . $file->guessExtension();
             $file->storeAs($user->id, $avatarName, 'local');
             $user->avatar = $avatarName;
         }

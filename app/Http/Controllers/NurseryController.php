@@ -52,14 +52,14 @@ class NurseryController extends Controller
         $regCerName = null;
         if ($request->hasFile('reg-cer')) {
             $regCerFile = $request->file('reg-cer');
-            $regCerName = $user . '_reg_cer.' . $regCerFile->getClientOriginalExtension();
+            $regCerName = $user . '_reg_cer.' . $regCerFile->guessExtension();
             $regCerFile->storeAs($user, $regCerName, 'local');
         }
 
         $panCerName = null;
         if ($request->hasFile('pan-cer')) {
             $panCerFile = $request->file('pan-cer');
-            $panCerName = $user . '_pan_cer.' . $panCerFile->getClientOriginalExtension();
+            $panCerName = $user . '_pan_cer.' . $panCerFile->guessExtension();
             $panCerFile->storeAs($user, $panCerName, 'local');
         }
 

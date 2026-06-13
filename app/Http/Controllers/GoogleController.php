@@ -62,21 +62,52 @@ class GoogleController extends Controller
         }
 
         try {
-            $user = User::updateOrCreate(
-                ['email' => $googleUser->getEmail()],
-                [
-                    'google_id'          => $googleUser->getId(),
-                    'name'               => $googleUser->getName(),
-                    'avatar'             => $googleUser->getAvatar(),
-                    'email_verified_at'  => now(),
-                ]
-            );
+            // Match on google_id first so we never overwrite an account that merely shares the email
+            $user  = User::where('google_id', $googleUser->getId())->first();
+            $isNew = false;
 
-            if ($user->wasRecentlyCreated) {
-                $user->password = bcrypt(Str::random(32));
-                $user->save();
+            if (!$user) {
+                $byEmail = User::where('email', $googleUser->getEmail())->first();
 
-                // Re-link an orphaned nursery that belonged to this Google account
+                // Email belongs to a different Google account — reject
+                if ($byEmail && $byEmail->google_id !== null) {
+                    \Log::warning('Google OAuth email conflict', ['email' => $googleUser->getEmail()]);
+                    return $isMobile
+                        ? redirect('floranepal://auth?error=email_conflict')
+                        : redirect('/?error=email_conflict');
+                }
+
+                if ($byEmail) {
+                    // Existing account without a google_id — link it
+                    $byEmail->update([
+                        'google_id'         => $googleUser->getId(),
+                        'name'              => $googleUser->getName(),
+                        'avatar'            => $googleUser->getAvatar(),
+                        'email_verified_at' => now(),
+                    ]);
+                    $user = $byEmail;
+                } else {
+                    // Brand new account
+                    $user = User::create([
+                        'email'             => $googleUser->getEmail(),
+                        'google_id'         => $googleUser->getId(),
+                        'name'              => $googleUser->getName(),
+                        'avatar'            => $googleUser->getAvatar(),
+                        'email_verified_at' => now(),
+                        'password'          => bcrypt(Str::random(32)),
+                    ]);
+                    $isNew = true;
+                }
+            } else {
+                // Returning user — keep name and avatar in sync with Google
+                $user->update([
+                    'name'              => $googleUser->getName(),
+                    'avatar'            => $googleUser->getAvatar(),
+                    'email_verified_at' => now(),
+                ]);
+            }
+
+            if ($isNew) {
                 Nursery::where('google_id', $googleUser->getId())
                     ->whereNull('user_id')
                     ->update(['user_id' => $user->id]);

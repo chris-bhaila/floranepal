@@ -69,7 +69,7 @@ class PlantController extends Controller
 
         if ($request->hasFile('plant_image')) {
             $file         = $request->file('plant_image');
-            $plantImgName = time() . '_plant.' . $file->getClientOriginalExtension();
+            $plantImgName = time() . '_plant.' . $file->guessExtension();
             $file->storeAs('plants', $plantImgName, 'public');
         }
 
@@ -158,7 +158,7 @@ class PlantController extends Controller
                 Storage::disk('public')->delete('plants/' . $plant->image);
             }
             $file = $request->file('plant_image');
-            $plantImgName = time() . '_plant.' . $file->getClientOriginalExtension();
+            $plantImgName = time() . '_plant.' . $file->guessExtension();
             $file->storeAs('plants', $plantImgName, 'public');
             $data['image'] = $plantImgName;
         }
