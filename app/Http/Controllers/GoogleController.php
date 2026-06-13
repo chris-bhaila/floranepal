@@ -78,32 +78,30 @@ class GoogleController extends Controller
                 }
 
                 if ($byEmail) {
-                    // Existing account without a google_id — link it
+                    // Existing account without a google_id — link it, preserve verification state
                     $byEmail->update([
-                        'google_id'         => $googleUser->getId(),
-                        'name'              => $googleUser->getName(),
-                        'avatar'            => $googleUser->getAvatar(),
-                        'email_verified_at' => now(),
+                        'google_id' => $googleUser->getId(),
+                        'name'      => $googleUser->getName(),
+                        'avatar'    => $googleUser->getAvatar(),
                     ]);
                     $user = $byEmail;
                 } else {
-                    // Brand new account
+                    // Brand new account — do not mark email as verified yet
                     $user = User::create([
-                        'email'             => $googleUser->getEmail(),
-                        'google_id'         => $googleUser->getId(),
-                        'name'              => $googleUser->getName(),
-                        'avatar'            => $googleUser->getAvatar(),
-                        'email_verified_at' => now(),
-                        'password'          => bcrypt(Str::random(32)),
+                        'email'    => $googleUser->getEmail(),
+                        'google_id' => $googleUser->getId(),
+                        'name'     => $googleUser->getName(),
+                        'avatar'   => $googleUser->getAvatar(),
+                        'password' => bcrypt(Str::random(32)),
                     ]);
                     $isNew = true;
+                    $user->sendEmailVerificationNotification();
                 }
             } else {
-                // Returning user — keep name and avatar in sync with Google
+                // Returning user — keep name and avatar in sync, never touch email_verified_at
                 $user->update([
-                    'name'              => $googleUser->getName(),
-                    'avatar'            => $googleUser->getAvatar(),
-                    'email_verified_at' => now(),
+                    'name'   => $googleUser->getName(),
+                    'avatar' => $googleUser->getAvatar(),
                 ]);
             }
 

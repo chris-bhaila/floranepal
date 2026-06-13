@@ -27,6 +27,17 @@ class Nursery extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    // Resolves the storage directory owner even when user_id is null (decoupled nursery).
+    // Files are named {user_id}_{type}.{ext}, so the prefix is the original owner's ID.
+    public function getCertOwnerIdAttribute(): ?int
+    {
+        if ($this->user_id) return $this->user_id;
+        $filename = $this->reg_cer ?? $this->pan_cer;
+        if (!$filename) return null;
+        $prefix = explode('_', $filename)[0];
+        return is_numeric($prefix) ? (int) $prefix : null;
+    }
     public function plants()
     {
         return $this->hasMany(Plant::class);

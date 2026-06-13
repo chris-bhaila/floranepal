@@ -56,24 +56,74 @@
                 @endif
             </div>
 
-            {{-- Certificates --}}
+            {{-- Certificates + Verify --}}
             <div class="bg-gray-50 rounded-xl p-4">
-                <p class="text-xs text-gray-400 font-medium uppercase tracking-wide mb-3">Certificates</p>
+                <div class="flex items-center justify-between mb-3">
+                    <p class="text-xs text-gray-400 font-medium uppercase tracking-wide">Certificates</p>
+                    @if ($nursery->user)
+                        @if ($nursery->user->verification_status === 'verified')
+                            <span class="text-xs px-3 py-1 rounded-full font-medium bg-green-100 text-green-800">Verified</span>
+                        @else
+                            <form action="{{ route('admin.nurseries.verify', $nursery) }}" method="POST">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit"
+                                    class="text-xs px-3 py-1 rounded-full font-semibold bg-green-700 text-white hover:bg-green-800 transition">
+                                    Verify Owner
+                                </button>
+                            </form>
+                        @endif
+                    @else
+                        <span class="text-xs px-3 py-1 rounded-full font-medium bg-gray-200 text-gray-400">No owner</span>
+                    @endif
+                </div>
+
+                @php $certOwnerId = $nursery->cert_owner_id; @endphp
+
                 <div class="flex gap-4">
-                    <div class="flex flex-col items-center gap-1">
-                        <p class="text-xs text-gray-500">Registration</p>
-                        @if ($nursery->reg_cer)
-                            <img src="{{ route('admin.file.view', [$nursery->user_id, $nursery->reg_cer]) }}"
-                                alt="Registration Certificate" class="w-28 h-28 object-cover rounded-lg">
+                    {{-- Registration Certificate --}}
+                    <div class="flex flex-col items-center gap-1 flex-1">
+                        <p class="text-xs text-gray-500 mb-1">Registration</p>
+                        @if ($nursery->reg_cer && $certOwnerId)
+                            @php $regUrl = route('admin.file.view', [$certOwnerId, $nursery->reg_cer]); @endphp
+                            @if (str_ends_with(strtolower($nursery->reg_cer), '.pdf'))
+                                <a href="{{ $regUrl }}" target="_blank"
+                                   class="w-28 h-28 bg-red-50 border border-red-200 rounded-lg flex flex-col items-center justify-center gap-1 hover:bg-red-100 transition">
+                                    <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                    </svg>
+                                    <span class="text-xs text-red-500 font-medium">View PDF</span>
+                                </a>
+                            @else
+                                <a href="{{ $regUrl }}" target="_blank">
+                                    <img src="{{ $regUrl }}" alt="Registration Certificate"
+                                         class="w-28 h-28 object-cover rounded-lg hover:opacity-80 transition">
+                                </a>
+                            @endif
                         @else
                             <div class="w-28 h-28 bg-gray-200 rounded-lg flex items-center justify-center text-xs text-gray-400">No file</div>
                         @endif
                     </div>
-                    <div class="flex flex-col items-center gap-1">
-                        <p class="text-xs text-gray-500">PAN</p>
-                        @if ($nursery->pan_cer)
-                            <img src="{{ route('admin.file.view', [$nursery->user_id, $nursery->pan_cer]) }}"
-                                alt="PAN Certificate" class="w-28 h-28 object-cover rounded-lg">
+
+                    {{-- PAN Certificate --}}
+                    <div class="flex flex-col items-center gap-1 flex-1">
+                        <p class="text-xs text-gray-500 mb-1">PAN</p>
+                        @if ($nursery->pan_cer && $certOwnerId)
+                            @php $panUrl = route('admin.file.view', [$certOwnerId, $nursery->pan_cer]); @endphp
+                            @if (str_ends_with(strtolower($nursery->pan_cer), '.pdf'))
+                                <a href="{{ $panUrl }}" target="_blank"
+                                   class="w-28 h-28 bg-red-50 border border-red-200 rounded-lg flex flex-col items-center justify-center gap-1 hover:bg-red-100 transition">
+                                    <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                    </svg>
+                                    <span class="text-xs text-red-500 font-medium">View PDF</span>
+                                </a>
+                            @else
+                                <a href="{{ $panUrl }}" target="_blank">
+                                    <img src="{{ $panUrl }}" alt="PAN Certificate"
+                                         class="w-28 h-28 object-cover rounded-lg hover:opacity-80 transition">
+                                </a>
+                            @endif
                         @else
                             <div class="w-28 h-28 bg-gray-200 rounded-lg flex items-center justify-center text-xs text-gray-400">No file</div>
                         @endif
@@ -177,8 +227,8 @@
                     <label
                         class="relative block w-full h-32 bg-gray-100 rounded-xl flex flex-col items-center justify-center gap-2 cursor-pointer overflow-hidden border-2 border-gray-200"
                         :class="cleared ? 'opacity-40 pointer-events-none' : ''">
-                        @if ($nursery->reg_cer)
-                            <img src="{{ route('admin.file.view', [$nursery->user_id, $nursery->reg_cer]) }}"
+                        @if ($nursery->reg_cer && $nursery->cert_owner_id)
+                            <img src="{{ route('admin.file.view', [$nursery->cert_owner_id, $nursery->reg_cer]) }}"
                                 class="absolute inset-0 w-full h-full object-cover opacity-60">
                         @endif
                         <svg class="w-6 h-6 text-gray-600 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -203,8 +253,8 @@
                     <label
                         class="relative block w-full h-32 bg-gray-100 rounded-xl flex flex-col items-center justify-center gap-2 cursor-pointer overflow-hidden border-2 border-gray-200"
                         :class="cleared ? 'opacity-40 pointer-events-none' : ''">
-                        @if ($nursery->pan_cer)
-                            <img src="{{ route('admin.file.view', [$nursery->user_id, $nursery->pan_cer]) }}"
+                        @if ($nursery->pan_cer && $nursery->cert_owner_id)
+                            <img src="{{ route('admin.file.view', [$nursery->cert_owner_id, $nursery->pan_cer]) }}"
                                 alt="PAN Certificate" class="absolute inset-0 w-full h-full object-cover opacity-60">
                         @endif
                         <svg class="w-6 h-6 text-gray-600 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">

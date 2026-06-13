@@ -1,21 +1,61 @@
-<div class="fade-up flex flex justify-between items-start mb-6 gap-4 px-4">
-    <div>
-        <h1 class="text-2xl font-bold">
-            {{ $nursery->name }} 🌱
-        </h1>
-        <p class="text-gray-600 text-sm">
-            {{ $nursery->location ?? 'No location provided' }}
-        </p>
+<div x-data="{ limitModal: false }">
+
+    {{-- Plant limit modal --}}
+    <div x-show="limitModal" x-transition.opacity
+         class="fixed inset-0 z-50 flex items-center justify-center px-4"
+         style="background: rgba(0,0,0,0.5);">
+        <div x-show="limitModal"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 scale-95"
+             x-transition:enter-end="opacity-100 scale-100"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100 scale-100"
+             x-transition:leave-end="opacity-0 scale-95"
+             class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center">
+            <div class="w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-7 h-7 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                </svg>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-1">Plant limit reached</h3>
+            <p class="text-sm text-gray-500 mb-6">
+                Free accounts are limited to <strong>5 plants</strong>. Upgrade to Premium to add unlimited plants.
+            </p>
+            <div class="flex gap-3">
+                <button @click="limitModal = false"
+                        class="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition">
+                    Cancel
+                </button>
+                <a href="{{ route('subscription') }}"
+                   @click.prevent="navigate('{{ route('subscription') }}', 'payment.subscription', 'Subscription')"
+                   class="flex-1 py-2.5 rounded-xl bg-green-700 text-white text-sm font-semibold hover:bg-green-800 transition text-center">
+                    Upgrade
+                </a>
+            </div>
+        </div>
     </div>
-    <a href="{{ route('plants.create') }}" @click.prevent="
-        @if (Auth::user()->subscription_type === 'general' && $nursery->plants()->count() >= 5)
-            window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: 'Plant limit reached!', message: 'Upgrade to premium to add more plants.' } }));
-        @else
-            navigate('{{ route('plants.create') }}', 'nurseries.plants.create', 'Add Plant')
-        @endif
-    " class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm mt-2">
-        Add Plant
-    </a>
+
+    <div class="fade-up flex justify-between items-start mb-6 gap-4 px-4">
+        <div>
+            <h1 class="text-2xl font-bold">
+                {{ $nursery->name }} 🌱
+            </h1>
+            <p class="text-gray-600 text-sm">
+                {{ $nursery->location ?? 'No location provided' }}
+            </p>
+        </div>
+        <a href="{{ route('plants.create') }}" @click.prevent="
+            @if (Auth::user()->subscription_type === 'general' && $nursery->plants()->count() >= 5)
+                limitModal = true
+            @else
+                navigate('{{ route('plants.create') }}', 'nurseries.plants.create', 'Add Plant')
+            @endif
+        " class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm mt-2">
+            Add Plant
+        </a>
+    </div>
+
 </div>
 
 {{-- Nursery Description --}}

@@ -189,6 +189,19 @@ class AdminController extends Controller
         return redirect()->route('admin.nurseries')->with('success', 'Nursery deleted.');
     }
 
+    public function verifyNurseryOwner(Nursery $nursery)
+    {
+        if (!$nursery->user) {
+            return redirect()->route('admin.nurseries.show', $nursery)
+                ->with('error', 'This nursery has no linked user account to verify.');
+        }
+
+        $nursery->user->update(['verification_status' => 'verified']);
+
+        return redirect()->route('admin.nurseries.show', $nursery)
+            ->with('success', "{$nursery->user->name} has been verified.");
+    }
+
     //Plants Section
     public function showPlant(Nursery $nursery, Plant $plant)
     {

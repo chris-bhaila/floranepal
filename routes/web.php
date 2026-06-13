@@ -184,6 +184,7 @@ Route::middleware(['auth:sanctum', 'admin', 'prevent.back'])->prefix('admin')->n
     Route::get('/nurseries/{nursery}', [AdminController::class, 'showNursery'])->name('nurseries.show');
     Route::put('/nurseries/{nursery}', [AdminController::class, 'updateNursery'])->name('nurseries.update');
     Route::delete('/nurseries/{nursery}', [AdminController::class, 'destroyNursery'])->name('nurseries.destroy');
+    Route::patch('/nurseries/{nursery}/verify', [AdminController::class, 'verifyNurseryOwner'])->name('nurseries.verify');
 
     Route::get('/file/{userId}/{filename}', function ($userId, $filename) {
         $path = $userId . '/' . $filename;
