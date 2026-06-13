@@ -17,7 +17,7 @@ class EnsureEmailVerifiedForWeb
 
         $user = $request->user();
 
-        if ($user instanceof MustVerifyEmail && !$user->hasVerifiedEmail()) {
+        if ($user instanceof MustVerifyEmail && $user->subscription_type !== 'admin' && !$user->hasVerifiedEmail()) {
             return redirect()->route('verification.notice');
         }
 
