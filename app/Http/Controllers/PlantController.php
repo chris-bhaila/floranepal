@@ -110,6 +110,10 @@ class PlantController extends Controller
 
     public function update(Request $request, Plant $plant)
     {
+        if ($plant->nursery->user_id !== Auth::id()) {
+            abort(403);
+        }
+
         $categories           = PlantOption::where('type', 'category')->pluck('value')->toArray();
         $seasons              = PlantOption::where('type', 'best_season')->pluck('value')->toArray();
         $locations            = PlantOption::where('type', 'location')->pluck('value')->toArray();
@@ -150,6 +154,10 @@ class PlantController extends Controller
 
     public function destroy(Plant $plant)
     {
+        if ($plant->nursery->user_id !== Auth::id()) {
+            abort(403);
+        }
+
         if ($plant->image) {
             Storage::disk('public')->delete('plants/' . $plant->image);
         }

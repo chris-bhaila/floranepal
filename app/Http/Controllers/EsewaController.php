@@ -20,7 +20,11 @@ class EsewaController extends Controller
 
         $selected = $plans[$plan];
         $transactionId = 'TXN_' . Auth::id() . '_' . time();
-        session(['plan' => $plan]);
+        session([
+            'plan'         => $plan,
+            'esewa_amount' => $selected['amount'],
+            'esewa_txn_id' => $transactionId,
+        ]);
         $message = $this->generateSignature($selected['amount'], $transactionId);
 
         return view('pages.dashboard.payment.esewa', [
@@ -38,6 +42,25 @@ class EsewaController extends Controller
 
         if ($data['status'] !== 'COMPLETE') {
             return redirect()->route('subscription')->with('error', 'Payment failed or cancelled.');
+        }
+
+        // Fix #25: verify eSewa's response signature before trusting any field in $data
+        $signedFields = explode(',', $data['signed_field_names'] ?? '');
+        $signatureMessage = implode(',', array_map(
+            fn($field) => "{$field}={$data[$field]}",
+            $signedFields
+        ));
+        $expectedSignature = base64_encode(
+            hash_hmac('sha256', $signatureMessage, config('services.esewa.secret_key'), true)
+        );
+        if (!hash_equals($expectedSignature, $data['signature'] ?? '')) {
+            return redirect()->route('subscription')->with('error', 'Payment verification failed.');
+        }
+
+        // Fix #26: cross-check returned amount against what was set at initiation
+        $expectedAmount = session('esewa_amount');
+        if (!$expectedAmount || (float) $data['total_amount'] !== (float) $expectedAmount) {
+            return redirect()->route('subscription')->with('error', 'Payment amount mismatch.');
         }
 
         // Verify with eSewa
