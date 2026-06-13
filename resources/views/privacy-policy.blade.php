@@ -36,6 +36,17 @@
     background: var(--surface);
     padding: 2.75rem 0 2rem;
   }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 0.85rem;
+    color: var(--leaf);
+    text-decoration: none;
+    margin-bottom: 1.25rem;
+  }
+  .back-link:hover { color: var(--leaf-deep); text-decoration: underline; }
   .eyebrow {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     text-transform: uppercase;
@@ -107,13 +118,6 @@
   .callout p:first-child { margin-top: 0; }
   .callout p:last-child { margin-bottom: 0; }
 
-  .placeholder {
-    background: #fff6dd;
-    border-bottom: 1px dashed #c79a2a;
-    padding: 0 0.15em;
-    font-style: normal;
-  }
-
   table {
     width: 100%;
     border-collapse: collapse;
@@ -136,16 +140,24 @@
     font-size: 0.85rem;
     color: var(--ink-soft);
   }
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
 </style>
 </head>
 <body>
   <header class="masthead">
     <div class="wrap">
+      <a href="/" class="back-link">&#8592; Back to Flora Nepal</a>
       <p class="eyebrow">Flora Nepal</p>
       <h1>Privacy Policy</h1>
       <p class="meta">
-        <strong>Effective date:</strong> <span class="placeholder">[DD Month 2026]</span>
-        &nbsp;·&nbsp; <strong>Last updated:</strong> <span class="placeholder">[DD Month 2026]</span>
+        <strong>Effective date:</strong> 13 June 2026
+        &nbsp;·&nbsp; <strong>Last updated:</strong> 13 June 2026
       </p>
     </div>
   </header>
@@ -161,7 +173,7 @@
       </p>
 
       <div class="callout">
-        <p>This Platform is operated by <span class="placeholder">[Your Legal Entity Name, e.g. Flora Nepal Pvt. Ltd.]</span>,
+        <p>This Platform is operated by <strong>[FILL IN: Your Legal Entity Name]</strong>,
         based in Nepal ("we", "us", "our"). It is intended for users in Nepal, and we handle personal
         information in line with the <strong>Individual Privacy Act, 2075 (2018)</strong> and the
         <strong>Individual Privacy Regulation, 2077 (2020)</strong>.</p>
@@ -177,17 +189,32 @@
 
       <h2><span class="num">2</span>Information we collect</h2>
 
-      <h3>2.1 Information you give us (nursery owners)</h3>
+      <h3>2.1 Information from Google Sign-In (nursery owners)</h3>
+      <p>
+        The only way to create an account on Flora Nepal is through Google Sign-In. When you choose
+        this option, Google shares the following information with us:
+      </p>
       <ul>
-        <li><strong>Account details:</strong> your name, email address, and a password you choose. Passwords are stored in encrypted (hashed) form and are never visible to us in plain text.</li>
-        <li><strong>Nursery profile:</strong> your nursery's name, and any description, location, or contact details you choose to add to your profile.</li>
-        <li><strong>Plant listings:</strong> the plants you publish, including plant name, price, offer price, and any other listing details you enter.</li>
+        <li><strong>Your name</strong> as it appears on your Google account;</li>
+        <li><strong>Your email address</strong> associated with your Google account;</li>
+        <li><strong>Your profile picture</strong> from your Google account;</li>
+        <li><strong>A unique Google identifier</strong> that lets us recognise your account on future sign-ins.</li>
+      </ul>
+      <p>
+        We do not receive your Google password. Your use of Google Sign-In is also subject to
+        <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>.
+      </p>
+
+      <h3>2.2 Information you add to the Platform (nursery owners)</h3>
+      <ul>
+        <li><strong>Nursery profile:</strong> your nursery's name, and any description, location, or contact details you choose to add.</li>
+        <li><strong>Plant listings:</strong> plant names, prices, offer prices, categories, seasons, and any images or details you enter.</li>
       </ul>
 
-      <h3>2.2 Information we collect automatically (everyone)</h3>
+      <h3>2.3 Information we collect automatically (everyone)</h3>
       <p>
-        Like virtually every website, when you visit or sign in, our servers and our hosting provider
-        automatically record certain technical information, including:
+        When you visit or sign in, our servers and hosting provider automatically record certain
+        technical information, including:
       </p>
       <ul>
         <li>Your IP address and approximate region;</li>
@@ -196,9 +223,8 @@
         <li>For logged-in nursery owners, a session identifier stored in a cookie that keeps you signed in.</li>
       </ul>
       <p>
-        We use this to operate the Platform, keep accounts secure, fix problems, and understand general
-        usage. <span class="placeholder">[If you add analytics — e.g. Google Analytics — or any advertising
-        tools later, you MUST describe them here and update Section 5.]</span>
+        We use this to operate the Platform, keep accounts secure, fix problems, and understand
+        general usage. We do not currently use any third-party analytics or advertising tools.
       </p>
 
       <h2><span class="num">3</span>What is public and what is private</h2>
@@ -212,8 +238,8 @@
         </thead>
         <tbody>
           <tr>
-            <td>Nursery name, your published plant listings (name, price, offer price), and any profile details you choose to display.</td>
-            <td>Your login email, your password, and our internal server/technical logs.</td>
+            <td>Nursery name, your published plant listings (name, price, offer price, images), and any profile details you choose to display.</td>
+            <td>Your login email, your Google identifier, your profile picture (unless shown in your public profile), and our internal server and technical logs.</td>
           </tr>
         </tbody>
       </table>
@@ -225,7 +251,7 @@
       <h2><span class="num">4</span>How we use your information</h2>
       <p>We use the information described above only to:</p>
       <ul>
-        <li>Create and manage your account and let you sign in;</li>
+        <li>Create and manage your account and let you sign in via Google;</li>
         <li>Publish and display your nursery profile and plant listings;</li>
         <li>Operate, maintain, secure, and improve the Platform;</li>
         <li>Respond to your questions or support requests;</li>
@@ -233,51 +259,83 @@
         <li>Comply with applicable law.</li>
       </ul>
       <p>
-        We use your information only for the purposes for which it was collected, as required under the
-        Individual Privacy Act, 2075. We do not use your information for unrelated purposes without your consent.
+        We use your information only for the purposes for which it was collected, as required under
+        the Individual Privacy Act, 2075. We do not use your information for unrelated purposes
+        without your consent.
       </p>
 
-      <h2><span class="num">5</span>Cookies</h2>
+      <h2><span class="num">5</span>Cookies and local storage</h2>
       <p>
-        We use a small number of cookies that are necessary for the Platform to work — primarily a
-        <strong>session cookie</strong> that keeps nursery owners signed in. Without it, login would not
-        function. We do not currently use advertising or third-party tracking cookies.
-        <span class="placeholder">[If this changes, update this section and tell users.]</span>
+        We use a small number of cookies and browser storage mechanisms that are necessary for the
+        Platform to work:
       </p>
+      <ul>
+        <li>
+          <strong>Session cookie:</strong> keeps nursery owners signed in after they authenticate
+          with Google. Without it, you would be signed out on every page load.
+        </li>
+        <li>
+          <strong>Browser localStorage:</strong> when signing in via the Flora Nepal mobile app,
+          a temporary authentication token is stored in your browser's localStorage so the web
+          Platform can recognise your session. This token is removed immediately after it is used.
+        </li>
+      </ul>
       <p>
-        You can block or delete cookies in your browser settings, but if you block the session cookie you
-        will not be able to stay logged in.
+        We do not use advertising or third-party tracking cookies. You can block or delete cookies
+        in your browser settings, but blocking the session cookie will prevent you from staying
+        logged in.
       </p>
 
       <h2><span class="num">6</span>When we share information</h2>
       <p>We do not sell your personal information. We share it only in these limited situations:</p>
       <ul>
-        <li><strong>Service providers:</strong> companies that host our servers, store our data, or send transactional emails on our behalf. They may only process the data to provide their service to us. <span class="placeholder">[List your hosting/email providers, e.g. "our web hosting provider" — be honest about who actually holds the data.]</span></li>
-        <li><strong>Public display:</strong> the information described as public in Section 3 is, by design, visible to all visitors.</li>
-        <li><strong>Legal requirements:</strong> where we are required to disclose information by law, by a competent authority, or to protect the rights, safety, or property of users or the public.</li>
-        <li><strong>Business transfer:</strong> if the Platform is merged, acquired, or transferred, your information may be transferred as part of that transaction, subject to this policy.</li>
+        <li>
+          <strong>Service providers:</strong> <strong>[FILL IN: your hosting provider, e.g. "DigitalOcean"]</strong>
+          hosts our servers and stores our data. They may only process data to provide their
+          service to us and are bound by confidentiality obligations.
+        </li>
+        <li>
+          <strong>Google:</strong> we use Google Sign-In for authentication. When you sign in,
+          your device communicates with Google's servers in accordance with
+          <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>.
+        </li>
+        <li>
+          <strong>Public display:</strong> the information described as public in Section 3 is,
+          by design, visible to all visitors.
+        </li>
+        <li>
+          <strong>Legal requirements:</strong> where we are required to disclose information by
+          law, by a competent authority, or to protect the rights, safety, or property of users
+          or the public.
+        </li>
+        <li>
+          <strong>Business transfer:</strong> if the Platform is merged, acquired, or transferred,
+          your information may be transferred as part of that transaction, subject to this policy.
+        </li>
       </ul>
 
       <h2><span class="num">7</span>How long we keep information</h2>
       <p>
         We keep your account, profile, and listing information for as long as your account is active.
         If you close your account or ask us to delete it, we will delete or anonymise your personal
-        information within a reasonable period, except where we must keep certain records to comply with
-        the law or to resolve disputes. Technical logs are kept for a limited period and then deleted.
+        information within a reasonable period, except where we must keep certain records to comply
+        with the law or to resolve disputes. Technical logs are kept for a limited period and then
+        deleted.
       </p>
 
       <h2><span class="num">8</span>How we protect your information</h2>
       <p>
-        We take reasonable technical and organisational measures to protect your information, including
-        encrypted password storage and access controls. No system is completely secure, however, so we
-        cannot guarantee absolute security. If a data breach affects your personal information, we will
-        take appropriate steps and notify you and any relevant authority where required.
+        We take reasonable technical and organisational measures to protect your information,
+        including access controls on our servers and using Google's secure OAuth 2.0 flow for
+        authentication. No system is completely secure, however, so we cannot guarantee absolute
+        security. If a data breach affects your personal information, we will notify you and any
+        relevant authority within 72 hours of becoming aware, where required by law.
       </p>
 
       <h2><span class="num">9</span>Your rights</h2>
       <p>
-        Under the Individual Privacy Act, 2075 (2018) and Article 28 of the Constitution of Nepal, you
-        have the right to:
+        Under the Individual Privacy Act, 2075 (2018) and Article 28 of the Constitution of Nepal,
+        you have the right to:
       </p>
       <ul>
         <li>Be informed about what personal information we collect and why;</li>
@@ -288,28 +346,29 @@
         <li>File a complaint if you believe your privacy rights have been breached.</li>
       </ul>
       <p>
-        To exercise any of these rights, contact us using the details in Section 13. You can update most
-        of your account, profile, and listing information directly by signing in.
+        To exercise any of these rights, contact us using the details in Section 13. You can update
+        most of your nursery profile and listing information directly by signing in.
       </p>
 
       <h2><span class="num">10</span>Children</h2>
       <p>
-        The Platform is intended for nursery owners and adult visitors, and is not directed at children.
-        We do not knowingly collect personal information from children. If you believe a child has
-        provided us information, please contact us so we can remove it.
+        The Platform is intended for nursery owners and adult visitors, and is not directed at
+        children. We do not knowingly collect personal information from children. If you believe
+        a child has provided us information, please contact us so we can remove it.
       </p>
 
       <h2><span class="num">11</span>Links to other sites</h2>
       <p>
-        Nursery profiles or listings may contain links to other websites. We are not responsible for the
-        privacy practices of those sites, and we encourage you to read their privacy policies.
+        Nursery profiles or listings may contain links to other websites. We are not responsible
+        for the privacy practices of those sites, and we encourage you to read their privacy
+        policies.
       </p>
 
       <h2><span class="num">12</span>Changes to this policy</h2>
       <p>
-        We may update this policy from time to time. When we make material changes, we will update the
-        "Last updated" date above and, where appropriate, notify account holders. Your continued use of
-        the Platform after a change means you accept the updated policy.
+        We may update this policy from time to time. When we make material changes, we will update
+        the "Last updated" date above and notify account holders by email where appropriate. Your
+        continued use of the Platform after a change means you accept the updated policy.
       </p>
 
       <h2><span class="num">13</span>Contact us</h2>
@@ -317,20 +376,20 @@
         If you have questions about this policy or want to exercise your rights, contact us at:
       </p>
       <ul>
-        <li><strong>Email:</strong> <span class="placeholder">[privacy@floranepal.com]</span></li>
-        <li><strong>Operator:</strong> <span class="placeholder">[Your Legal Entity Name]</span></li>
-        <li><strong>Address:</strong> <span class="placeholder">[Registered address, City, Nepal]</span></li>
+        <li><strong>Email:</strong> privacy@floranepal.com</li>
+        <li><strong>Operator:</strong> [FILL IN: Your Legal Entity Name]</li>
+        <li><strong>Address:</strong> [FILL IN: Registered address, City, Nepal]</li>
       </ul>
       <p>
         If you are not satisfied with our response, you may pursue a complaint under the Individual
-        Privacy Act, 2075. Note that the Act sets a limitation period for filing certain complaints, so
-        act promptly.
+        Privacy Act, 2075. Note that the Act sets a limitation period for filing certain complaints,
+        so act promptly.
       </p>
 
       <h2><span class="num">14</span>Governing law</h2>
       <p>
-        This policy is governed by the laws of Nepal, including the Individual Privacy Act, 2075 (2018)
-        and the Individual Privacy Regulation, 2077 (2020).
+        This policy is governed by the laws of Nepal, including the Individual Privacy Act, 2075
+        (2018) and the Individual Privacy Regulation, 2077 (2020).
       </p>
 
     </div>
@@ -338,7 +397,10 @@
 
   <footer>
     <div class="wrap">
-      <p>© <span class="placeholder">[2026]</span> Flora Nepal. This document is a template and is not legal advice.</p>
+      <div class="footer-inner">
+        <p style="margin:0;">© 2026 Flora Nepal. All rights reserved.</p>
+        <a href="/">Back to Flora Nepal</a>
+      </div>
     </div>
   </footer>
 </body>
