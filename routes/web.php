@@ -27,6 +27,12 @@ function dashboardView(string $page, array $data = [])
 
 // Public Routes
 Route::get('/', function () {
+    if (Auth::check()) {
+        $user = Auth::user();
+        return $user->subscription_type === 'admin'
+            ? redirect()->route('admin.dashboard')
+            : redirect('/dashboard');
+    }
     $nurseries = Nursery::with('plants')->whereNotNull('user_id')->get();
     return view('login', compact('nurseries'));
 })->name('login');

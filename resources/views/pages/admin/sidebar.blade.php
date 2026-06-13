@@ -1,7 +1,3 @@
-@php
-    use Illuminate\Support\Facades\Auth;
-    $user = Auth::user();
-@endphp
 <x-app-layout :title="ucfirst($page)">
     <div x-data="adminApp()" class="flex h-screen">
 

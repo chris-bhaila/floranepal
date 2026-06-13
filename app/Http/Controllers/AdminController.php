@@ -9,6 +9,7 @@ use App\Models\PlantOption;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class AdminController extends Controller
 {
@@ -68,7 +69,7 @@ class AdminController extends Controller
             'address'             => 'nullable|string|max:255',
             'avatar'              => 'nullable|image|max:2048',
             'verification_status' => 'required|in:unverified,verified',
-            'subscription_type'   => 'required|in:general,premium,admin',
+            'subscription_type'   => 'required|in:general,premium',
         ]);
 
         $data = $request->only([
@@ -215,6 +216,8 @@ class AdminController extends Controller
 
     public function updatePlant(Request $request, Nursery $nursery, Plant $plant)
     {
+        abort_if($plant->nursery_id !== $nursery->id, 404);
+
         $request->validate([
             'name'                 => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-]+$/u'],
             'description'          => ['nullable', 'string', 'max:1000'],
@@ -249,7 +252,7 @@ class AdminController extends Controller
                 Storage::disk('public')->delete('plants/' . $plant->image);
             }
             $file = $request->file('plant_image');
-            $plantImgName = time() . '_plant.' . $file->guessExtension();
+            $plantImgName = Str::uuid() . '_plant.' . $file->guessExtension();
             $file->storeAs('plants', $plantImgName, 'public');
             $data['image'] = $plantImgName;
         }
@@ -261,6 +264,8 @@ class AdminController extends Controller
 
     public function destroyPlant(Nursery $nursery, Plant $plant)
     {
+        abort_if($plant->nursery_id !== $nursery->id, 404);
+
         if ($plant->image) {
             Storage::disk('public')->delete('plants/' . $plant->image);
         }

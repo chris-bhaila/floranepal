@@ -63,17 +63,22 @@ class NurseryController extends Controller
             $panCerFile->storeAs($user, $panCerName, 'local');
         }
 
-        Nursery::create([
-            'user_id'       => Auth::id(),
-            'google_id'     => Auth::user()->google_id,
-            'name'          => $request->name,
-            'contact_phone' => $request->phone,
-            'contact_email' => $request->email,
-            'location'      => $request->location,
-            'description'   => $request->description,
-            'reg_cer'       => $regCerName,
-            'pan_cer'       => $panCerName,
-        ]);
+        try {
+            Nursery::create([
+                'user_id'       => Auth::id(),
+                'google_id'     => Auth::user()->google_id,
+                'name'          => $request->name,
+                'contact_phone' => $request->phone,
+                'contact_email' => $request->email,
+                'location'      => $request->location,
+                'description'   => $request->description,
+                'reg_cer'       => $regCerName,
+                'pan_cer'       => $panCerName,
+            ]);
+        } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
+            return redirect()->back()
+                ->with('error', 'You already have a nursery and cannot create another.');
+        }
 
         return redirect()->route('nursery.show')
             ->with('success', 'Nursery created successfully!');

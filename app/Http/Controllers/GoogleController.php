@@ -33,17 +33,13 @@ class GoogleController extends Controller
     public function callback(Request $request)
     {
         $rawState = $request->query('state');
-        $decoded = $rawState ? json_decode(base64_decode($rawState), true) : null;
+        $decoded  = $rawState ? json_decode(base64_decode($rawState), true) : null;
+        $isMobile = ($decoded['client'] ?? 'web') === 'mobile';
 
         \Log::info('OAuth callback', [
-            'decoded_state' => $decoded,
-            'client_resolved' => ($decoded['client'] ?? 'web'),
+            'decoded_state'   => $decoded,
+            'client_resolved' => $isMobile ? 'mobile' : 'web',
         ]);
-
-        if ($rawState) {
-            $decoded = json_decode(base64_decode($rawState), true);
-            $isMobile = ($decoded['client'] ?? 'web') === 'mobile';
-        }
 
         try {
             $googleUser = Socialite::driver('google')->stateless()->user();

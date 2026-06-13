@@ -7,6 +7,7 @@ use App\Models\PlantOption;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class PlantController extends Controller
 {
@@ -48,15 +49,15 @@ class PlantController extends Controller
             'name'                 => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-]+$/u'],
             'description'          => ['nullable', 'string', 'max:1000'],
             'plant_image'          => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
-            'category'             => ['required', 'in:' . implode(',', $categories)],
+            'category'             => $categories ? ['required', 'in:' . implode(',', $categories)] : ['required', 'string', 'max:255'],
             'offer_price'          => ['required', 'numeric', 'min:0', 'max:999999'],
             'selling_price'        => ['required', 'numeric', 'min:0', 'max:999999'],
             'stock_quantity'       => ['required', 'integer', 'min:0', 'max:99999'],
-            'best_season'          => ['nullable', 'in:' . implode(',', $seasons)],
+            'best_season'          => $seasons ? ['nullable', 'in:' . implode(',', $seasons)] : ['nullable', 'string', 'max:255'],
             'scientific_name'      => ['nullable', 'string', 'max:255', 'regex:/^[\pL\s\-\.]+$/u'],
-            'location'             => ['required', 'in:' . implode(',', $locations)],
-            'sunlight_requirement' => ['nullable', 'in:' . implode(',', $sunlightRequirements)],
-            'water_requirement'    => ['nullable', 'in:' . implode(',', $waterRequirements)],
+            'location'             => $locations ? ['required', 'in:' . implode(',', $locations)] : ['required', 'string', 'max:255'],
+            'sunlight_requirement' => $sunlightRequirements ? ['nullable', 'in:' . implode(',', $sunlightRequirements)] : ['nullable', 'string', 'max:255'],
+            'water_requirement'    => $waterRequirements ? ['nullable', 'in:' . implode(',', $waterRequirements)] : ['nullable', 'string', 'max:255'],
         ], [
             'name.regex'            => 'Plant name may only contain letters, spaces, and hyphens.',
             'scientific_name.regex' => 'Scientific name may only contain letters, spaces, hyphens, and periods.',
@@ -69,7 +70,7 @@ class PlantController extends Controller
 
         if ($request->hasFile('plant_image')) {
             $file         = $request->file('plant_image');
-            $plantImgName = time() . '_plant.' . $file->guessExtension();
+            $plantImgName = Str::uuid() . '_plant.' . $file->guessExtension();
             $file->storeAs('plants', $plantImgName, 'public');
         }
 
@@ -128,15 +129,15 @@ class PlantController extends Controller
             'name'                 => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-]+$/u'],
             'description'          => ['nullable', 'string', 'max:1000'],
             'plant_image'          => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
-            'category'             => ['required', 'in:' . implode(',', $categories)],
+            'category'             => $categories ? ['required', 'in:' . implode(',', $categories)] : ['required', 'string', 'max:255'],
             'offer_price'          => ['required', 'numeric', 'min:0', 'max:999999'],
             'selling_price'        => ['required', 'numeric', 'min:0', 'max:999999'],
             'stock_quantity'       => ['required', 'integer', 'min:0', 'max:99999'],
-            'best_season'          => ['nullable', 'in:' . implode(',', $seasons)],
+            'best_season'          => $seasons ? ['nullable', 'in:' . implode(',', $seasons)] : ['nullable', 'string', 'max:255'],
             'scientific_name'      => ['nullable', 'string', 'max:255', 'regex:/^[\pL\s\-\.]+$/u'],
-            'location'             => ['required', 'in:' . implode(',', $locations)],
-            'sunlight_requirement' => ['nullable', 'in:' . implode(',', $sunlightRequirements)],
-            'water_requirement'    => ['nullable', 'in:' . implode(',', $waterRequirements)],
+            'location'             => $locations ? ['required', 'in:' . implode(',', $locations)] : ['required', 'string', 'max:255'],
+            'sunlight_requirement' => $sunlightRequirements ? ['nullable', 'in:' . implode(',', $sunlightRequirements)] : ['nullable', 'string', 'max:255'],
+            'water_requirement'    => $waterRequirements ? ['nullable', 'in:' . implode(',', $waterRequirements)] : ['nullable', 'string', 'max:255'],
         ]);
 
         $data = $request->only([
@@ -158,7 +159,7 @@ class PlantController extends Controller
                 Storage::disk('public')->delete('plants/' . $plant->image);
             }
             $file = $request->file('plant_image');
-            $plantImgName = time() . '_plant.' . $file->guessExtension();
+            $plantImgName = Str::uuid() . '_plant.' . $file->guessExtension();
             $file->storeAs('plants', $plantImgName, 'public');
             $data['image'] = $plantImgName;
         }

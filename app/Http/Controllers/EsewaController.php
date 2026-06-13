@@ -19,12 +19,8 @@ class EsewaController extends Controller
         $plan = array_key_exists($request->plan, $plans) ? $request->plan : 'annually';
 
         $selected = $plans[$plan];
-        $transactionId = 'TXN_' . Auth::id() . '_' . time();
-        session([
-            'plan'         => $plan,
-            'esewa_amount' => $selected['amount'],
-            'esewa_txn_id' => $transactionId,
-        ]);
+        // Plan is encoded in the UUID so verify() never needs session — eliminates race across tabs
+        $transactionId = 'TXN_' . Auth::id() . '_' . time() . '_' . $plan;
         $message = $this->generateSignature($selected['amount'], $transactionId);
 
         return view('pages.dashboard.payment.esewa', [
@@ -37,6 +33,12 @@ class EsewaController extends Controller
 
     public function verify(Request $request)
     {
+        $plans = [
+            'monthly'         => ['label' => 'Monthly',       'amount' => 999],
+            'semi-annually'   => ['label' => 'Semi-Annually',  'amount' => 5094],
+            'annually'        => ['label' => 'Annually',       'amount' => 7188],
+        ];
+
         $raw = base64_decode($request->data ?? '', true);
         if ($raw === false) {
             return redirect()->route('subscription')->with('error', 'Invalid payment response.');
@@ -51,7 +53,7 @@ class EsewaController extends Controller
             return redirect()->route('subscription')->with('error', 'Payment failed or cancelled.');
         }
 
-        // Fix #25: verify eSewa's response signature before trusting any field in $data
+        // Verify eSewa's response signature before trusting any field in $data
         $signedFields = explode(',', $data['signed_field_names'] ?? '');
         $signatureMessage = implode(',', array_map(
             fn($field) => "{$field}={$data[$field]}",
@@ -64,9 +66,16 @@ class EsewaController extends Controller
             return redirect()->route('subscription')->with('error', 'Payment verification failed.');
         }
 
-        // Fix #26: cross-check returned amount against what was set at initiation
-        $expectedAmount = session('esewa_amount');
-        if (!$expectedAmount || (float) $data['total_amount'] !== (float) $expectedAmount) {
+        // Parse plan from the signed transaction_uuid (format: TXN_{userId}_{time}_{plan})
+        $txnParts = explode('_', $data['transaction_uuid'] ?? '');
+        $plan = $txnParts[3] ?? 'annually';
+        if (!array_key_exists($plan, $plans)) {
+            return redirect()->route('subscription')->with('error', 'Invalid payment plan.');
+        }
+
+        // Cross-check returned amount against the canonical plan price
+        $expectedAmount = $plans[$plan]['amount'];
+        if ((float) $data['total_amount'] !== (float) $expectedAmount) {
             return redirect()->route('subscription')->with('error', 'Payment amount mismatch.');
         }
 
@@ -80,17 +89,17 @@ class EsewaController extends Controller
         if ($response->successful() && $response->json('status') === 'COMPLETE') {
             $user = Auth::user();
 
-            $ends = match (session('plan', 'annually')) {
+            $ends = match ($plan) {
                 'monthly'       => now()->addMonth(),
                 'semi-annually' => now()->addMonths(6),
                 'annually'      => now()->addYear(),
             };
 
-            // If user already has an active subscription, extend from existing renewal date
+            // If user already has an active subscription, extend from the existing renewal date
             $latestTransaction = $user->transactions()->where('status', 'completed')->latest()->first();
             if ($latestTransaction && $latestTransaction->renewal_at > now()) {
-                $ends = match (session('plan', 'annually')) {
-                    'monthly'       => $latestTransaction->renewal_at->copy()->addMonth(), //this prevents Carbon from mutating the original date object when calling addMonth() on it.
+                $ends = match ($plan) {
+                    'monthly'       => $latestTransaction->renewal_at->copy()->addMonth(),
                     'semi-annually' => $latestTransaction->renewal_at->copy()->addMonths(6),
                     'annually'      => $latestTransaction->renewal_at->copy()->addYear(),
                 };
@@ -100,7 +109,7 @@ class EsewaController extends Controller
                 ['transaction_id' => $data['transaction_uuid']],
                 [
                     'user_id'        => $user->id,
-                    'plan'           => session('plan', 'annually'),
+                    'plan'           => $plan,
                     'amount'         => $data['total_amount'],
                     'payment_method' => 'esewa',
                     'status'         => 'completed',

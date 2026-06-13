@@ -20,12 +20,13 @@ class ProfileController extends Controller
         $request->validate([
             'name'    => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-]+$/u'],
             'phone'   => ['nullable', 'regex:/^\+?[0-9]{7,15}$/'],
-            'address' => ['nullable', 'string', 'max:255'],
+            'address' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z0-9\s\,\.\-]+$/'],
             'avatar'  => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
         ]);
 
         if ($request->hasFile('avatar')) {
-            if ($user->avatar && str_contains($user->avatar, 'file.view')) {
+            // Local avatars are stored as bare filenames (e.g. "1_avatar.jpg"); Google avatars are full URLs
+            if ($user->avatar && !str_contains($user->avatar, '://')) {
                 $files = Storage::disk('local')->files($user->id);
                 foreach ($files as $file) {
                     if (str_contains($file, '_avatar.')) {
