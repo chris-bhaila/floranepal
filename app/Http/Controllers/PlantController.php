@@ -95,6 +95,10 @@ class PlantController extends Controller
 
     public function show(Plant $plant)
     {
+        if ($plant->nursery->user_id !== Auth::id()) {
+            abort(403);
+        }
+
         $options = PlantOption::all()->groupBy('type');
 
         if (request()->header('X-Dashboard-Navigate')) {
