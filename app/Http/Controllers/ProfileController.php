@@ -21,7 +21,7 @@ class ProfileController extends Controller
             'name'    => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-]+$/u'],
             'phone'   => ['nullable', 'regex:/^\+?[0-9]{7,15}$/'],
             'address' => ['nullable', 'string', 'max:255'],
-            'avatar'  => ['nullable', 'image', 'max:2048'],
+            'avatar'  => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
         ]);
 
         if ($request->hasFile('avatar')) {

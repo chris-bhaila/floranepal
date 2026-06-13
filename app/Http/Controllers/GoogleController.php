@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Nursery;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -74,6 +75,11 @@ class GoogleController extends Controller
             if ($user->wasRecentlyCreated) {
                 $user->password = bcrypt(Str::random(32));
                 $user->save();
+
+                // Re-link an orphaned nursery that belonged to this Google account
+                Nursery::where('google_id', $googleUser->getId())
+                    ->whereNull('user_id')
+                    ->update(['user_id' => $user->id]);
             }
         } catch (\Exception $e) {
             \Log::error('User upsert failed: ' . $e->getMessage());

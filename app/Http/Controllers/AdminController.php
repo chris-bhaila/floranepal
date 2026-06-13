@@ -14,6 +14,20 @@ class AdminController extends Controller
 {
     private function adminView(string $page, array $data = [])
     {
+        $allowed = [
+            'dashboard',
+            'users.index',
+            'users.show',
+            'nurseries.index',
+            'nurseries.show',
+            'nurseries.plants.show',
+            'plant-options',
+        ];
+
+        if (!in_array($page, $allowed, true)) {
+            abort(404);
+        }
+
         if (request()->header('X-Dashboard-Navigate')) {
             return view('pages.admin.' . str_replace('.', '/', $page), $data);
         }
@@ -203,7 +217,19 @@ class AdminController extends Controller
             'water_requirement'    => ['nullable', 'string', 'max:255'],
         ]);
 
-        $data = $request->except('plant_image');
+        $data = $request->only([
+            'name',
+            'description',
+            'category',
+            'offer_price',
+            'selling_price',
+            'stock_quantity',
+            'best_season',
+            'scientific_name',
+            'location',
+            'sunlight_requirement',
+            'water_requirement',
+        ]);
 
         if ($request->hasFile('plant_image')) {
             if ($plant->image) {

@@ -39,8 +39,8 @@ class NurseryController extends Controller
             'email'       => ['required', 'string', 'email', 'max:255'],
             'location'    => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z0-9\s\,\.\-]+$/'],
             'description' => ['nullable', 'string', 'max:1000'],
-            'reg-cer'     => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
-            'pan-cer'     => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+            'reg-cer'     => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048'],
+            'pan-cer'     => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048'],
         ], [
             'name.regex'     => 'Nursery name may only contain letters, spaces, and hyphens.',
             'phone.regex'    => 'Please enter a valid phone number (e.g. +9779800000000).',

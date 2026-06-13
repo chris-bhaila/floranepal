@@ -139,7 +139,19 @@ class PlantController extends Controller
             'water_requirement'    => ['nullable', 'in:' . implode(',', $waterRequirements)],
         ]);
 
-        $data = $request->except('plant_image');
+        $data = $request->only([
+            'name',
+            'description',
+            'category',
+            'offer_price',
+            'selling_price',
+            'stock_quantity',
+            'best_season',
+            'scientific_name',
+            'location',
+            'sunlight_requirement',
+            'water_requirement',
+        ]);
 
         if ($request->hasFile('plant_image')) {
             if ($plant->image) {
