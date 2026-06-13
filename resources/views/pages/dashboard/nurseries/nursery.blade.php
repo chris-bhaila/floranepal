@@ -8,9 +8,11 @@
         </p>
     </div>
     <a href="{{ route('plants.create') }}" @click.prevent="
-        @if (Auth::user()->subscription_type === 'general' && $nursery->plants()->count() >= 5) toastr.error('Upgrade to premium to add more plants.', 'Plant limit reached!');
+        @if (Auth::user()->subscription_type === 'general' && $nursery->plants()->count() >= 5)
+            window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: 'Plant limit reached!', message: 'Upgrade to premium to add more plants.' } }));
         @else
-        navigate('{{ route('plants.create') }}', 'nurseries.plants.create', 'Add Plant') @endif
+            navigate('{{ route('plants.create') }}', 'nurseries.plants.create', 'Add Plant')
+        @endif
     " class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm mt-2">
         Add Plant
     </a>

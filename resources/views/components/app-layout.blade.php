@@ -15,7 +15,6 @@
     <link
         href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="//unpkg.com/alpinejs" defer></script>
 
@@ -157,59 +156,129 @@
         </a>
     </footer>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    {{-- Toast container --}}
+    <div x-data="fnToast()" @toast.window="add($event.detail)"
+         class="fixed top-4 right-4 z-[9999] flex flex-col gap-3 w-80 pointer-events-none">
+        <template x-for="t in toasts" :key="t.id">
+            <div x-show="t.visible"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-x-6"
+                 x-transition:enter-end="opacity-100 translate-x-0"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-x-0"
+                 x-transition:leave-end="opacity-0 translate-x-6"
+                 class="pointer-events-auto relative overflow-hidden rounded-xl shadow-2xl border"
+                 :class="{
+                     'bg-gray-900 border-green-500/30': t.type === 'success',
+                     'bg-gray-900 border-red-500/30':   t.type === 'error',
+                     'bg-gray-900 border-amber-500/30': t.type === 'warning',
+                     'bg-gray-900 border-blue-500/30':  t.type === 'info',
+                 }">
+                <div class="flex items-start gap-3 px-4 pt-4 pb-3">
+                    {{-- Icon --}}
+                    <span class="shrink-0 mt-0.5 w-5 h-5"
+                          :class="{
+                              'text-green-400': t.type === 'success',
+                              'text-red-400':   t.type === 'error',
+                              'text-amber-400': t.type === 'warning',
+                              'text-blue-400':  t.type === 'info',
+                          }"
+                          x-html="icons[t.type]"></span>
+                    {{-- Text --}}
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold leading-snug"
+                           :class="{
+                               'text-green-300': t.type === 'success',
+                               'text-red-300':   t.type === 'error',
+                               'text-amber-300': t.type === 'warning',
+                               'text-blue-300':  t.type === 'info',
+                           }"
+                           x-text="t.title"></p>
+                        <p class="text-xs text-gray-400 mt-0.5 leading-relaxed" x-text="t.message"></p>
+                    </div>
+                    {{-- Close --}}
+                    <button @click="dismiss(t.id)"
+                            class="shrink-0 text-gray-500 hover:text-gray-300 transition-colors -mt-0.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                {{-- Progress bar --}}
+                <div class="h-0.5 w-full"
+                     :class="{
+                         'bg-green-900/40': t.type === 'success',
+                         'bg-red-900/40':   t.type === 'error',
+                         'bg-amber-900/40': t.type === 'warning',
+                         'bg-blue-900/40':  t.type === 'info',
+                     }">
+                    <div class="h-full origin-left"
+                         :class="{
+                             'bg-green-500': t.type === 'success',
+                             'bg-red-500':   t.type === 'error',
+                             'bg-amber-500': t.type === 'warning',
+                             'bg-blue-500':  t.type === 'info',
+                         }"
+                         x-init="$el.animate([{transform:'scaleX(1)'},{transform:'scaleX(0)'}],
+                                 {duration: 3500, fill: 'forwards', easing: 'linear'})">
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const token = localStorage.getItem('auth_token');
-            console.log('auth_token found:', token ? 'yes' : 'no');
-
-            if (!token) return;
-
-            const csrfMeta = document.querySelector('meta[name=csrf-token]');
-
-            fetch('/auth/mobile/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfMeta ? csrfMeta.content : ''
-                    },
-                    body: JSON.stringify({
-                        token: token
-                    })
-                })
-                .then(r => r.json())
-                .then(data => {
-                    console.log('Response data:', JSON.stringify(data));
-                    if (data.success) {
-                        localStorage.removeItem('auth_token');
-                        window.location.href = '/dashboard';
+        function fnToast() {
+            return {
+                toasts: [],
+                icons: {
+                    success: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>`,
+                    error:   `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>`,
+                    warning: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>`,
+                    info:    `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
+                },
+                defaultTitle: { success: 'Success', error: 'Error', warning: 'Warning', info: 'Info' },
+                add({ type = 'info', message = '', title = '' }) {
+                    const id = Date.now();
+                    this.toasts.push({ id, type, message, title: title || this.defaultTitle[type], visible: true });
+                    setTimeout(() => this.dismiss(id), 3700);
+                },
+                dismiss(id) {
+                    const t = this.toasts.find(t => t.id === id);
+                    if (t) {
+                        t.visible = false;
+                        setTimeout(() => this.toasts = this.toasts.filter(t => t.id !== id), 250);
                     }
-                })
-                .catch(err => console.log('Fetch error:', err.message));
+                },
+            };
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const token = localStorage.getItem('auth_token');
+            if (!token) return;
+            const csrfMeta = document.querySelector('meta[name=csrf-token]');
+            fetch('/auth/mobile/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfMeta ? csrfMeta.content : '' },
+                body: JSON.stringify({ token }),
+            })
+            .then(r => r.json())
+            .then(data => { if (data.success) { localStorage.removeItem('auth_token'); window.location.href = '/dashboard'; } })
+            .catch(() => {});
+
+            @if(session('success'))
+            window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'success', message: @json(session('success')) } }));
+            @endif
+            @if(session('error'))
+            window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: @json(session('error')) } }));
+            @endif
+            @if(session('warning'))
+            window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'warning', message: @json(session('warning')) } }));
+            @endif
+            @if(session('info'))
+            window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'info', message: @json(session('info')) } }));
+            @endif
         });
-        toastr.options = {
-            "positionClass": "toast-top-right",
-            "timeOut": "3000",
-            "progressBar": true,
-            "closeButton": true,
-        };
-
-        @if(session('success'))
-        toastr.success("{{ session('success') }}");
-        @endif
-
-        @if(session('error'))
-        toastr.error("{{ session('error') }}");
-        @endif
-
-        @if(session('warning'))
-        toastr.warning("{{ session('warning') }}");
-        @endif
-
-        @if(session('info'))
-        toastr.info("{{ session('info') }}");
-        @endif
     </script>
 </body>
 

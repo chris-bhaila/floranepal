@@ -27,7 +27,7 @@ function dashboardView(string $page, array $data = [])
 
 // Public Routes
 Route::get('/', function () {
-    $nurseries = Nursery::with('plants')->get();
+    $nurseries = Nursery::with('plants')->whereNotNull('user_id')->get();
     return view('login', compact('nurseries'));
 })->name('login');
 
