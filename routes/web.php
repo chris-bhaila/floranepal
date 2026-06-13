@@ -99,7 +99,7 @@ Route::post('/auth/mobile/login', function (Request $request) {
 })->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
 
 // Protected Routes for user
-Route::middleware(['auth:sanctum', 'prevent.back'])->group(function () {
+Route::middleware(['auth:sanctum', 'web.verified', 'prevent.back'])->group(function () {
 
     Route::get('/dashboard/additionalInfo', [ProfileController::class, 'addInfo'])->name('addInfo');
     Route::post('/dashboard/additionalInfo', [ProfileController::class, 'storeAdditionalInfo'])->name('addInfo.store');

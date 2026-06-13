@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin'               => \App\Http\Middleware\AdminMiddleware::class,
             'prevent.back'        => \App\Http\Middleware\PreventBackHistory::class,
+            'web.verified'        => \App\Http\Middleware\EnsureEmailVerifiedForWeb::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

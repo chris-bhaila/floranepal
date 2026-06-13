@@ -129,6 +129,12 @@ class GoogleController extends Controller
         $request->session()->regenerate();
         \Log::info('Web login', ['user_id' => $user->id, 'role' => $user->subscription_type]);
 
+        // Block unverified users — resend the email every attempt so they always have a fresh link
+        if (!$user->hasVerifiedEmail()) {
+            $user->sendEmailVerificationNotification();
+            return redirect()->route('verification.notice');
+        }
+
         return $user->subscription_type === 'admin'
             ? redirect()->route('admin.dashboard')
             : redirect('/dashboard');
